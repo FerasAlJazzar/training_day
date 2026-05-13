@@ -7,8 +7,14 @@ import 'add_todo_sheet.dart';
 class TodoTile extends StatelessWidget {
   final Todo todo;
   final VoidCallback onChanged;
+  final VoidCallback onDelete;
 
-  const TodoTile({super.key, required this.todo, required this.onChanged});
+  const TodoTile({
+    super.key,
+    required this.todo,
+    required this.onChanged,
+    required this.onDelete,
+  });
 
   Color _categoryColor(String category) {
     switch (category) {
@@ -44,7 +50,7 @@ class TodoTile extends StatelessWidget {
         ),
         child: Icon(Icons.delete_rounded, color: theme.colorScheme.onError),
       ),
-      onDismissed: (_) => TodoService.deleteTodo(todo.id).then((_) => onChanged()),
+      onDismissed: (_) => onDelete(),
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -132,8 +138,7 @@ class TodoTile extends StatelessWidget {
                     Icons.delete_outline_rounded,
                     color: theme.colorScheme.error.withValues(alpha: 0.7),
                   ),
-                  onPressed: () =>
-                      TodoService.deleteTodo(todo.id).then((_) => onChanged()),
+                  onPressed: onDelete,
                 ),
               ],
             ),

@@ -91,12 +91,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _deleteTodo(Todo todo) {
     TodoService.deleteTodo(todo.id);
-    _loadTodos();
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
       SnackBar(
         content: Text('"${todo.title}" deleted'),
         behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
         action: SnackBarAction(
           label: 'Undo',
           onPressed: () {
@@ -106,6 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+
+    _loadTodos();
   }
 
   int get _completedCount => _allTodos.where((t) => t.isCompleted).length;
@@ -113,7 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
   double get _progress =>
       _allTodos.isEmpty ? 0 : _completedCount / _allTodos.length;
 
-  // ─────────────────────────────── date grouping ───────────────────────────────
 
   Map<String, List<Todo>> _groupByDate(List<Todo> todos) {
     final now = DateTime.now();
@@ -150,7 +153,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return {for (final e in sorted) e.key: e.value};
   }
 
-  // ────────────────────────────────── build ──────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -299,8 +301,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  // ──────────────────────────── app bar ────────────────────────────
 
   AppBar _normalAppBar(ThemeData theme) => AppBar(
         title: Text('Taskify',
