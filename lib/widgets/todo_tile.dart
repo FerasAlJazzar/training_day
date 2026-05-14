@@ -33,6 +33,17 @@ class TodoTile extends StatelessWidget {
     }
   }
 
+  Color _priorityColor(Priority p) {
+    switch (p) {
+      case Priority.high:
+        return Colors.red;
+      case Priority.medium:
+        return Colors.orange;
+      case Priority.low:
+        return Colors.green;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -54,91 +65,109 @@ class TodoTile extends StatelessWidget {
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
           onTap: () => showModalBottomSheet(
             context: context,
             isScrollControlled: true,
             builder: (_) => AddTodoSheet(todo: todo),
           ).then((_) => onChanged()),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          child: IntrinsicHeight(
             child: Row(
               children: [
-                Checkbox(
-                  value: todo.isCompleted,
-                  onChanged: (_) =>
-                      TodoService.toggleTodo(todo.id).then((_) => onChanged()),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
+                Container(
+                  width: 5,
+                  color: _priorityColor(todo.priority),
                 ),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        todo.title,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          decoration:
-                              todo.isCompleted ? TextDecoration.lineThrough : null,
-                          color: todo.isCompleted
-                              ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
-                              : null,
-                        ),
-                      ),
-                      if (todo.description.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          todo.description,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.6),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 10, 4, 10),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: todo.isCompleted,
+                          onChanged: (_) => TodoService.toggleTodo(todo.id)
+                              .then((_) => onChanged()),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
                           ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                todo.title,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  decoration: todo.isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                  color: todo.isCompleted
+                                      ? theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.5)
+                                      : null,
+                                ),
+                              ),
+                              if (todo.description.isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  todo.description,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style:
+                                      theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: 8,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: _categoryColor(todo.category)
+                                          .withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      todo.category,
+                                      style:
+                                          theme.textTheme.labelSmall?.copyWith(
+                                        color:
+                                            _categoryColor(todo.category),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    dateStr,
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.4),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.delete_outline_rounded,
+                            color: theme.colorScheme.error
+                                .withValues(alpha: 0.7),
+                          ),
+                          onPressed: onDelete,
                         ),
                       ],
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 8,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: _categoryColor(todo.category)
-                                  .withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              todo.category,
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: _categoryColor(todo.category),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            dateStr,
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.4),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.delete_outline_rounded,
-                    color: theme.colorScheme.error.withValues(alpha: 0.7),
-                  ),
-                  onPressed: onDelete,
                 ),
               ],
             ),

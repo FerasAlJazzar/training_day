@@ -1,9 +1,36 @@
+enum Priority { low, medium, high }
+
+extension PriorityX on Priority {
+  String get label {
+    switch (this) {
+      case Priority.low:
+        return 'Low';
+      case Priority.medium:
+        return 'Medium';
+      case Priority.high:
+        return 'High';
+    }
+  }
+
+  static Priority fromString(String s) {
+    switch (s) {
+      case 'High':
+        return Priority.high;
+      case 'Medium':
+        return Priority.medium;
+      default:
+        return Priority.low;
+    }
+  }
+}
+
 class Todo {
   final String id;
   String title;
   String description;
   bool isCompleted;
   String category;
+  Priority priority;
   DateTime createdAt;
 
   Todo({
@@ -12,6 +39,7 @@ class Todo {
     this.description = '',
     this.isCompleted = false,
     this.category = 'General',
+    this.priority = Priority.medium,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -21,6 +49,7 @@ class Todo {
         'description': description,
         'isCompleted': isCompleted,
         'category': category,
+        'priority': priority.label,
         'createdAt': createdAt.toIso8601String(),
       };
 
@@ -30,6 +59,7 @@ class Todo {
         description: map['description'] as String? ?? '',
         isCompleted: map['isCompleted'] as bool? ?? false,
         category: map['category'] as String? ?? 'General',
+        priority: PriorityX.fromString(map['priority'] as String? ?? 'Medium'),
         createdAt: DateTime.parse(map['createdAt'] as String),
       );
 
@@ -38,6 +68,7 @@ class Todo {
     String? description,
     bool? isCompleted,
     String? category,
+    Priority? priority,
   }) =>
       Todo(
         id: id,
@@ -45,6 +76,7 @@ class Todo {
         description: description ?? this.description,
         isCompleted: isCompleted ?? this.isCompleted,
         category: category ?? this.category,
+        priority: priority ?? this.priority,
         createdAt: createdAt,
       );
 }

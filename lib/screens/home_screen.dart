@@ -5,7 +5,7 @@ import '../services/todo_service.dart';
 import '../widgets/add_todo_sheet.dart';
 import '../widgets/todo_tile.dart';
 
-enum SortBy { newest, oldest, name, activeFirst }
+enum SortBy { newest, oldest, name, activeFirst, priority }
 enum FilterBy { all, active, done }
 
 class HomeScreen extends StatefulWidget {
@@ -76,6 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
           if (a.isCompleted == b.isCompleted) return 0;
           return a.isCompleted ? 1 : -1;
         });
+      case SortBy.priority:
+        list.sort((a, b) => b.priority.index.compareTo(a.priority.index));
     }
 
     _filtered = list;
@@ -343,7 +345,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       );
 
-  // ──────────────────────────── filter bar ────────────────────────────
 
   Widget _buildFilterBar(ThemeData theme) {
     return Padding(
@@ -420,6 +421,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return 'Name';
       case SortBy.activeFirst:
         return 'Active first';
+      case SortBy.priority:
+        return 'Priority';
     }
   }
 

@@ -26,6 +26,7 @@ class _AddTodoSheetState extends State<AddTodoSheet> {
   late final TextEditingController _titleCtrl;
   late final TextEditingController _descCtrl;
   late String _category;
+  late Priority _priority;
   bool get _isEditing => widget.todo != null;
 
   @override
@@ -34,6 +35,7 @@ class _AddTodoSheetState extends State<AddTodoSheet> {
     _titleCtrl = TextEditingController(text: widget.todo?.title ?? '');
     _descCtrl = TextEditingController(text: widget.todo?.description ?? '');
     _category = widget.todo?.category ?? categories.first;
+    _priority = widget.todo?.priority ?? Priority.medium;
   }
 
   @override
@@ -41,6 +43,28 @@ class _AddTodoSheetState extends State<AddTodoSheet> {
     _titleCtrl.dispose();
     _descCtrl.dispose();
     super.dispose();
+  }
+
+  Color _priorityColor(Priority p) {
+    switch (p) {
+      case Priority.high:
+        return Colors.red;
+      case Priority.medium:
+        return Colors.orange;
+      case Priority.low:
+        return Colors.green;
+    }
+  }
+
+  IconData _priorityIcon(Priority p) {
+    switch (p) {
+      case Priority.high:
+        return Icons.flag;
+      case Priority.medium:
+        return Icons.arrow_upward;
+      case Priority.low:
+        return Icons.arrow_downward;
+    }
   }
 
   @override
@@ -102,6 +126,28 @@ class _AddTodoSheetState extends State<AddTodoSheet> {
                   .toList(),
               onChanged: (v) => setState(() => _category = v!),
             ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<Priority>(
+              initialValue: _priority,
+              decoration: const InputDecoration(
+                labelText: 'Priority',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.flag),
+              ),
+              items: Priority.values.map((p) {
+                return DropdownMenuItem(
+                  value: p,
+                  child: Row(
+                    children: [
+                      Icon(_priorityIcon(p), size: 18, color: _priorityColor(p)),
+                      const SizedBox(width: 8),
+                      Text(p.label),
+                    ],
+                  ),
+                );
+              }).toList(),
+              onChanged: (v) => setState(() => _priority = v!),
+            ),
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: _submit,
@@ -128,6 +174,7 @@ class _AddTodoSheetState extends State<AddTodoSheet> {
         title: _titleCtrl.text.trim(),
         description: _descCtrl.text.trim(),
         category: _category,
+        priority: _priority,
       );
       TodoService.updateTodo(widget.todo!.id, updated);
     } else {
@@ -136,6 +183,7 @@ class _AddTodoSheetState extends State<AddTodoSheet> {
         title: _titleCtrl.text.trim(),
         description: _descCtrl.text.trim(),
         category: _category,
+        priority: _priority,
         createdAt: now,
       );
       TodoService.addTodo(todo);
