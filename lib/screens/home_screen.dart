@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/todo.dart';
 import '../services/todo_service.dart';
+import '../services/theme_service.dart';
 import '../widgets/add_todo_sheet.dart';
 import '../widgets/todo_tile.dart';
 
@@ -309,6 +310,13 @@ class _HomeScreenState extends State<HomeScreen> {
             style:
                 theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
         actions: [
+          IconButton(
+            icon: Icon(ThemeService.icon(ThemeService.notifier.value)),
+            tooltip: 'Theme',
+            onPressed: () => ThemeService.setThemeMode(
+              ThemeService.next(ThemeService.notifier.value),
+            ),
+          ),
           IconButton(
               icon: const Icon(Icons.search),
               onPressed: () => setState(() => _isSearching = true)),
